@@ -1,0 +1,42 @@
+[
+  {
+    "keys": ["up"],
+    "command": "finder_update",
+    "args": {
+      "source": "up"
+    },
+    "context": [
+      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
+    ]
+  },
+  {
+    "keys": ["down"],
+    "command": "finder_update",
+    "args": {
+      "source": "down"
+    },
+    "context": [
+      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
+    ]
+  },
+  {
+    "keys": ["left"],
+    "command": "finder_update",
+    "args": {
+      "source": "left"
+    },
+    "context": [
+      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
+    ]
+  },
+  {
+    "keys": ["right"],
+    "command": "finder_update",
+    "args": {
+      "source": "right"
+    },
+    "context": [
+      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "name": "Example Color Scheme",
+  "globals":
+  {
+    "background": "rgb(34, 34, 34)",
+    "foreground": "#EEEEEE",
+    "caret": "white"
+  },
+  "rules":
+  [
+    {
+      "name": "Comment",
+      "scope": "comment",
+      "foreground": "#888888"
+    },
+    {
+      "name": "String",
+      "scope": "string",
+      "foreground": "hsla(50, 100%, 50%, 1)"
+    },
+    {
+      "name": "Bold",
+      "scope": "markup.bold.finder",
+      "foreground": "#00b1dc"
+    },
+    {
+      "name": "Number",
+      "scope": "constant.numeric.finder",
+      "foreground": "#b1dc1c",
+      "font_style": "italic"
+    }
+  ]
+}

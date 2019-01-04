@@ -1,0 +1,17 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: Finder - Default
+hidden: true
+scope: source.finder
+contexts:
+  main:
+    
+    # Keywords
+    - match: '\b(if|else|for|while)\b'
+      scope: markup.bold.finder
+
+    # Numbers
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.finder
+    

@@ -1,7 +1,6 @@
 import sublime
 import sublime_plugin
-import os, sys
-import datetime
+import os, subprocess, sys
 from os.path import expanduser
 
 class FinderCommand( sublime_plugin.TextCommand ):
@@ -50,35 +49,47 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     
     image = "res://Packages/Finder/images/icon-folder.png"
     
-    # path = self.view.settings().get("finder.path")
     x = self.view.settings().get("finder.x")
     y = self.view.settings().get("finder.y")
+    current_path = self.view.settings().get("finder.current_path")
 
     if source == "up": y -= 1
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
-    
-    if self.view.size() < 2**20:
 
-      if source == "nav-down":
-        x = 0
-        y = 0
-        path = expanduser(self.view.settings().get("finder.selected_path"))
+    # navigate down
+    if source == "nav-down":
+      path = expanduser(self.view.settings().get("finder.selected_path"))
+
+      if os.path.isfile(path):
+        print( path )
+        
+        if sys.platform.startswith('darwin'):
+          subprocess.call(('open', path))
+        elif os.name == 'nt': # For Windows
+          os.startfile(path)
+        elif os.name == 'posix': # For Linux, Mac, etc.
+          subprocess.call(('xdg-open', path))
+        
+        path = expanduser(current_path)
       else:
-        path = expanduser(self.view.settings().get("finder.current_path"))
+        x = y = 0
+    else:
+      path = expanduser(current_path)
 
-      if source == "nav-up":
-        x = 0
-        y = 0
-        path = expanduser(os.path.abspath(os.path.join(self.view.settings().get("finder.current_path"), os.pardir)))
-      
-      # files = os.listdir(path)
+    # navigate up
+    if source == "nav-up":
+      x = y = 0
+      path = expanduser(os.path.abspath(os.path.join(current_path, os.pardir)))
+    
+    # if selection is directory
+    if os.path.isdir(path) and self.view.size() < 2**20:
+
       files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
       
       gen_obj = self.chunks(files, 4)
       limit = 15
-
       icon_folder = ""
       icon_file = ""
 
@@ -133,7 +144,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             is_col = " active"
             self.view.settings().set("finder.selected_path", os.path.join(path, col))
             # print(os.path.join(path, col))
-            print( os.path.isfile(os.path.join(path, col)) )
+            # print( os.path.isfile(os.path.join(path, col)) )
             # print( os.path.isdir(os.path.join(path, col)) )
           else:
             is_col = ""
@@ -141,7 +152,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
           space = limit - len(col)
           
           if space >= 0:
-            # col = col + "&nbsp;" * space
             nbsp = "&nbsp;" * space
           else:
             col = col[:(limit - 3)]+"..."

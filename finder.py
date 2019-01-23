@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
 import os, subprocess, sys
+from urllib import parse
 from os.path import expanduser
 
 class FinderCommand( sublime_plugin.TextCommand ):
@@ -17,10 +18,10 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("finder.y", 0)
     self.view.settings().set("finder.selected_path", expanduser("~"))
     self.view.settings().set("finder.current_path", expanduser("~"))
-    # self.view.settings().set("font_size", 16.0)
+    self.view.settings().set("font_size", 16.0)
     self.view.settings().set("gutter", False)
-    # print( self.view.viewport_extent()[0] )
-
+    self.view.settings().set("finder.has_loaded", False)
+    
     # self.view.settings().set("font_face", "Anonymous Pro")
     # self.view.settings().set("font_face", "icomoon")
     # self.view.settings().set("color_scheme", "Packages/Finder/Finder.sublime-color-scheme")
@@ -34,62 +35,65 @@ class FinderCommand( sublime_plugin.TextCommand ):
     
     return self.view
 
-  def update_phantoms(self):
-    print( 'update_phantoms' )
-
-
 class FinderUpdateCommand(sublime_plugin.TextCommand):
 
   def run(self, edit, source=None):
-    
-    # if sys.platform.startswith('darwin'):
-      # print('mac')
-      # print(os.name)
-      # print(sys.platform)
     
     image = "res://Packages/Finder/images/icon-folder.png"
     
     x = self.view.settings().get("finder.x")
     y = self.view.settings().get("finder.y")
     current_path = self.view.settings().get("finder.current_path")
+    has_loaded = self.view.settings().get("finder.has_loaded")
 
     if source == "up": y -= 1
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
 
-    # navigate down
+    # NAVIGATE DOWN
     if source == "nav-down":
       path = expanduser(self.view.settings().get("finder.selected_path"))
 
       if os.path.isfile(path):
-        print( path )
         
+        # OPEN FILE
         if sys.platform.startswith('darwin'):
           subprocess.call(('open', path))
         elif os.name == 'nt': # For Windows
           os.startfile(path)
         elif os.name == 'posix': # For Linux, Mac, etc.
           subprocess.call(('xdg-open', path))
-        
+
         path = expanduser(current_path)
       else:
         x = y = 0
     else:
       path = expanduser(current_path)
 
-    # navigate up
+    # NAVIGATE UP
     if source == "nav-up":
       x = y = 0
       path = expanduser(os.path.abspath(os.path.join(current_path, os.pardir)))
     
-    # if selection is directory
+    # IF SELECTION IS DIRECTORY
     if os.path.isdir(path) and self.view.size() < 2**20:
 
       files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
       
-      gen_obj = self.chunks(files, 4)
-      limit = 15
+      width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
+      width = self.view.viewport_extent()[0]
+      em_width = self.view.em_width()
+      gutter = 1
+      char_count = 20
+      
+      line_count = ((width + width_bug) / em_width)
+      col_chars = (char_count + gutter * 2)
+      cols = int(line_count / col_chars) # use int to round down ..for some reason
+      pad = (line_count - (col_chars * cols)) / 2
+      
+      file_array = self.chunks(files, cols)
+
       icon_folder = ""
       icon_file = ""
 
@@ -98,7 +102,12 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
           <style>
             body {
               margin: 0;
-              padding: 10px 20px 10px 10px;
+              padding: 0 """ + str( em_width * pad ) + """;
+              color: #c8c8c8;
+            }
+
+            a {
+              text-decoration: none;
               color: #c8c8c8;
             }
 
@@ -107,8 +116,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             .file {
               display: inline;
               margin: 0;
-              padding: 0;
-              font-size: 16px;
+              padding: 0 """ + str( em_width * gutter ) + """;
               line-height: 40px;
             }
 
@@ -123,57 +131,71 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 
             .file .icon {
               font-family: "devicons";
+              display: none;
             }
 
             .file .name {
               display: inline;
-              padding-right: 30px;
+              padding-right: 0;
+            }
+
+            .footer {
+              margin-top: 40px;
+              padding: 0 """ + str( em_width * gutter ) + """;
             }
           </style>
       """
       
-      for index, row in enumerate(gen_obj):
+      # LOOP NAVIGATION
+      # todo: readdress y logic for uneven lines
+      if y >= len(file_array): y = 0
+      if y < 0: y = (len(file_array) - 1)
+
+      if x >= len(file_array[y]): x = 0
+      if x < 0: x = (len(file_array[y]) - 1)
+
+      # FOR EACH ROW
+      for index, row in enumerate(file_array):
         is_row = " active" if index == y else ""
         tmp = '<div class="row'+is_row+'">'
 
+        # FOR EACH COL
         for index, col in enumerate(row):
           # is_col = " active" if index == x and is_row == " active" else ""
-          # full_path = os.path.join(path, name)
-
+          full_path = os.path.join(path, col)
+          
           if index == x and is_row == " active":
             is_col = " active"
             self.view.settings().set("finder.selected_path", os.path.join(path, col))
-            # print(os.path.join(path, col))
-            # print( os.path.isfile(os.path.join(path, col)) )
-            # print( os.path.isdir(os.path.join(path, col)) )
           else:
             is_col = ""
           
-          space = limit - len(col)
+          space = char_count - len(col)
           
           if space >= 0:
-            nbsp = "&nbsp;" * space
+            nbsp = "-" * space
+            # nbsp = "&nbsp;" * space
           else:
-            col = col[:(limit - 3)]+"..."
+            col = col[:(char_count - 3)]+"..."
             nbsp = ""
 
-          tmp += '<div class="file'+ is_col +'"><span class="icon">' + icon_folder + '</span> <span class="name">' + col + '</span>' + nbsp + '</div>'
+          tmp += '<div class="file'+ is_col +'"><span class="icon">' + icon_folder + '</span><a href="?x='+ str(x) +'&y='+ str(y) +'" class="name">' + col + '</a>' + nbsp + '</div>'
           # tmp += '<div class="file'+ is_col +'">📁 <span class="name">' + col + '</span>' + nbsp + '</div>'
           # tmp += '<div class="file'+ is_col +'"><img src="' + image + '" width="20" height="20"> <span>' + col + '</span>' + nbsp + '</div>'
 
         tmp += '</div>'
         html += tmp
 
-      html += '<div><br /><br />'+path+'</div>'
+      html += '<div class="footer"><a href="?x=1&y=2#path">'+path+'</a></div>'
       html += '</body>'
       
       self.view.erase_phantoms("list")
-      self.view.add_phantom("list", self.view.sel()[0], html, sublime.LAYOUT_BLOCK)
+      self.view.add_phantom("list", self.view.sel()[0], html, sublime.LAYOUT_BLOCK, self.on_navigate)
     
-    # print(html)
     self.view.settings().set("finder.x", x)
     self.view.settings().set("finder.y", y)
     self.view.settings().set("finder.current_path", path)
+    self.view.settings().set("finder.has_loaded", True)
     
   def chunks(self, l, n):
     splitArray = []
@@ -181,3 +203,17 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       splitArray.append(l[i:i + n])
     return splitArray
 
+  def on_navigate(self, href):
+    # print('Navigate to: %s' % (href,))
+    # print( self )
+    # x = self.view.settings().get("finder.x")
+    # y = self.view.settings().get("finder.y")
+    # print( x, y )
+    print( href )
+
+    # query_def = parse.parse_qs(parse.urlparse(href).query)['x'][0]
+    # print( query_def )
+    
+    # print( "on_navigate" )
+    # webbrowser.open(href)
+    self.view.run_command("finder_update")

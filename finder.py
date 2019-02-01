@@ -29,7 +29,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
     # self.view.set_syntax_file("Packages/Finder/syntax/finder.sublime-syntax")
     
     self.view.run_command("finder_update")
-    self.view.set_read_only(True)
+    # self.view.set_read_only(True)
   
     window.focus_view(self.view)
     
@@ -81,112 +81,111 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 
       files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
       
-      width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
-      width = self.view.viewport_extent()[0]
-      em_width = self.view.em_width()
-      gutter = 1
-      char_count = 20
-      
-      line_count = ((width + width_bug) / em_width)
-      col_chars = (char_count + gutter * 2)
-      cols = int(line_count / col_chars) # use int to round down ..for some reason
-      pad = (line_count - (col_chars * cols)) / 2
-      
-      file_array = self.chunks(files, cols)
+      char_limit = 17
+      icon_width = 40
 
+      em_width = self.view.em_width()
+      width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
+      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * 2)
+      
+      file_width = (em_width * (char_limit + 1)) + icon_width
+      col_count = int( width / file_width )
+      pad = (width - (file_width * col_count)) / col_count
+      
       icon_folder = ""
       icon_file = ""
-
+      
       html = """
         <body id="finder">
           <style>
             body {
               margin: 0;
-              padding: 0 """ + str( em_width * pad ) + """;
-              color: #c8c8c8;
+              padding: 0 """ + str( em_width ) + """;
+              width: """ + str( width ) + """px;
+              font-size: """ + str( self.view.settings().get("font_size") ) + """px;
             }
 
             a {
               text-decoration: none;
-              color: #c8c8c8;
+              color: #fff;
             }
-
-            .row.active {  }
             
             .file {
               display: inline;
               margin: 0;
-              padding: 0 """ + str( em_width * gutter ) + """;
+              padding: 0 """ + str( pad / 2 ) + """;
               line-height: 40px;
+            }
+
+            .file .icon {
+              font-family: "devicons";
+              display: inline;
+              position: relative;
+              top: 10px;
+              font-size: """ + str( icon_width ) + """px;
+            }
+            
+            .file .name {
+              display: inline;
+              padding: 0;
+              position: relative;
+              left: """ + str( em_width ) + """px;
+            }
+
+            .file.active {
+              background-color: rgba(255, 255, 255, 0.15);
             }
 
             .file.active .name {
               text-decoration: underline;
             }
-            
-            .file img {
-              width: 30px;
+
+            .tester {
+              background-color: #b1dc1c;
+              display: block;
+              margin-top: 40px;
+              width: """ + str( file_width ) + """px;
+              padding: 0 """ + str( pad / 2 ) + """;
               height: 20px;
-            }
-
-            .file .icon {
-              font-family: "devicons";
-              display: none;
-            }
-
-            .file .name {
-              display: inline;
-              padding-right: 0;
             }
 
             .footer {
               margin-top: 40px;
-              padding: 0 """ + str( em_width * gutter ) + """;
             }
           </style>
       """
+
+      if x >= col_count: x = 0
+      if x < 0: x = (col_count - 1)
+
+      # if y >= len(file_array): y = 0
+      # if y < 0: y = (len(file_array) - 1)
       
-      # LOOP NAVIGATION
-      # todo: readdress y logic for uneven lines
-      if y >= len(file_array): y = 0
-      if y < 0: y = (len(file_array) - 1)
-
-      if x >= len(file_array[y]): x = 0
-      if x < 0: x = (len(file_array[y]) - 1)
-
       # FOR EACH ROW
-      for index, row in enumerate(file_array):
-        is_row = " active" if index == y else ""
-        tmp = '<div class="row'+is_row+'">'
+      for index, file in enumerate(files):
 
-        # FOR EACH COL
-        for index, col in enumerate(row):
-          # is_col = " active" if index == x and is_row == " active" else ""
-          full_path = os.path.join(path, col)
-          
-          if index == x and is_row == " active":
-            is_col = " active"
-            self.view.settings().set("finder.selected_path", os.path.join(path, col))
-          else:
-            is_col = ""
-          
-          space = char_count - len(col)
-          
-          if space >= 0:
-            nbsp = "-" * space
-            # nbsp = "&nbsp;" * space
-          else:
-            col = col[:(char_count - 3)]+"..."
-            nbsp = ""
+        is_active = ""
+        space = char_limit - len(file)
+        
+        if space >= 0:
+          # nbsp = "-" * space
+          nbsp = "&nbsp;" * space
+        else:
+          file = file[:(char_limit - 3)]+"..."
+          nbsp = ""
+        
+        pos_x = self.get_xy(col_count, index)[0]
+        pos_y = self.get_xy(col_count, index)[1]
 
-          tmp += '<div class="file'+ is_col +'"><span class="icon">' + icon_folder + '</span><a href="?x='+ str(x) +'&y='+ str(y) +'" class="name">' + col + '</a>' + nbsp + '</div>'
-          # tmp += '<div class="file'+ is_col +'">📁 <span class="name">' + col + '</span>' + nbsp + '</div>'
-          # tmp += '<div class="file'+ is_col +'"><img src="' + image + '" width="20" height="20"> <span>' + col + '</span>' + nbsp + '</div>'
-
-        tmp += '</div>'
+        if y == pos_y and x == pos_x:
+          is_active = " active"
+          self.view.settings().set("finder.selected_path", os.path.join(path, file))
+        
+        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="icon">'+ icon_folder +'</span><span class="name">'+ file.replace(" ", "&nbsp;") +'</span>'+ nbsp +' </a>'
+        
         html += tmp
 
-      html += '<div class="footer"><a href="?x=1&y=2#path">'+path+'</a></div>'
+      html += '<div class="footer">'+path+'</div>'
       html += '</body>'
       
       self.view.erase_phantoms("list")
@@ -196,24 +195,16 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     self.view.settings().set("finder.y", y)
     self.view.settings().set("finder.current_path", path)
     self.view.settings().set("finder.has_loaded", True)
-    
-  def chunks(self, l, n):
-    splitArray = []
-    for i in range(0, len(l), n):
-      splitArray.append(l[i:i + n])
-    return splitArray
+  
+  def get_xy(self, col_count, index):
+    return (index % col_count, int( index / col_count ))
 
   def on_navigate(self, href):
-    # print('Navigate to: %s' % (href,))
-    # print( self )
-    # x = self.view.settings().get("finder.x")
-    # y = self.view.settings().get("finder.y")
-    # print( x, y )
-    print( href )
-
-    # query_def = parse.parse_qs(parse.urlparse(href).query)['x'][0]
-    # print( query_def )
     
-    # print( "on_navigate" )
-    # webbrowser.open(href)
+    get_x = parse.parse_qs(parse.urlparse(href).query)['x'][0]
+    get_y = parse.parse_qs(parse.urlparse(href).query)['y'][0]
+    
+    self.view.settings().set("finder.x", int(get_x))
+    self.view.settings().set("finder.y", int(get_y))
+    
     self.view.run_command("finder_update")

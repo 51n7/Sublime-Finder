@@ -113,8 +113,8 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             .file {
               display: inline;
               margin: 0;
-              padding: 0 """ + str( pad / 2 ) + """;
-              line-height: 40px;
+              padding: 10px """ + str( pad / 2 ) + """;
+              line-height: 35px;
             }
 
             .file .icon {

@@ -38,25 +38,5 @@
     "context": [
       { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
     ]
-  },
-  {
-    "keys": ["super+up"],
-    "command": "finder_update",
-    "args": {
-      "source": "nav-up"
-    },
-    "context": [
-      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
-    ]
-  },
-  {
-    "keys": ["super+down"],
-    "command": "finder_update",
-    "args": {
-      "source": "nav-down"
-    },
-    "context": [
-      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
-    ]
   }
 ]

@@ -1,9 +1,9 @@
 [
   {
-    "keys": ["super+ctrl+l"], "command": "finder"
+    "keys": ["ctrl+shift+l"], "command": "finder"
   },
   {
-    "keys": ["super+up"],
+    "keys": ["ctrl+up"],
     "command": "finder_update",
     "args": {
       "source": "nav-up"
@@ -13,7 +13,7 @@
     ]
   },
   {
-    "keys": ["super+down"],
+    "keys": ["ctrl+down"],
     "command": "finder_update",
     "args": {
       "source": "nav-down"

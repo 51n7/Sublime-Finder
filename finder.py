@@ -8,12 +8,15 @@ class FinderCommand( sublime_plugin.TextCommand ):
 
   def run(self, edit):
     
+    settings = sublime.load_settings("Finder.sublime-settings")
+    
     window = sublime.active_window()
     self.view = window.new_file()
 
     self.view.set_name('Finder')
     self.view.set_scratch(True)
     self.view.settings().set("finder.is_open", True)
+    self.view.settings().set("finder.inline", settings.get("files_inline"))
     self.view.settings().set("finder.x", 0)
     self.view.settings().set("finder.y", 0)
     self.view.settings().set("finder.selected_path", expanduser("~"))
@@ -41,6 +44,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     
     image = "res://Packages/Finder/images/icon-folder.png"
     
+    inline = self.view.settings().get("finder.inline")
     x = self.view.settings().get("finder.x")
     y = self.view.settings().get("finder.y")
     current_path = self.view.settings().get("finder.current_path")
@@ -90,11 +94,23 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       
       file_width = (em_width * (char_limit + 1)) + icon_width
       col_count = int( width / file_width )
+      row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
       
       icon_folder = ""
       icon_file = ""
-      
+
+      if inline == True:
+        icon_x = em_width
+        icon_y = 10
+        name_y = 0
+        line_height = 35
+      else:
+        icon_x = -(icon_width)
+        icon_y = -5
+        name_y = 20
+        line_height = 70
+
       html = """
         <body id="finder">
           <style>
@@ -114,14 +130,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               display: inline;
               margin: 0;
               padding: 10px """ + str( pad / 2 ) + """;
-              line-height: 35px;
+              line-height: """ + str( line_height ) + """px;
             }
 
             .file .icon {
               font-family: "devicons";
               display: inline;
               position: relative;
-              top: 10px;
+              top: """ + str( icon_y ) + """px;
               font-size: """ + str( icon_width ) + """px;
             }
             
@@ -129,7 +145,8 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               display: inline;
               padding: 0;
               position: relative;
-              left: """ + str( em_width ) + """px;
+              left: """ + str( icon_x ) + """px;
+              top: """ + str( name_y ) + """px;
             }
 
             .file.active {
@@ -155,12 +172,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
           </style>
       """
 
-      if x >= col_count: x = 0
-      if x < 0: x = (col_count - 1)
+      # LOOP NAVIGATION
+      x = x % col_count
+      y = y % row_count
 
-      # if y >= len(file_array): y = 0
-      # if y < 0: y = (len(file_array) - 1)
-      
+      if ((y * col_count) + x > (len(files) - 1)):
+        x = ((len(files) - 1) % col_count)
+
       # FOR EACH ROW
       for index, file in enumerate(files):
 
@@ -198,6 +216,9 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
   
   def get_xy(self, col_count, index):
     return (index % col_count, int( index / col_count ))
+
+  def ceil(self, num):
+    return int(num + 1) if int(num) < num else num
 
   def on_navigate(self, href):
     

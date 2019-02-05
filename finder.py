@@ -4,6 +4,10 @@ import os, subprocess, sys
 from urllib import parse
 from os.path import expanduser
 
+# todo:
+# import win32api, win32con
+# https://stackoverflow.com/questions/19799990/sublime-text-plugin-adding-python-libraries
+
 class FinderCommand( sublime_plugin.TextCommand ):
 
   def run(self, edit):
@@ -15,24 +19,19 @@ class FinderCommand( sublime_plugin.TextCommand ):
 
     self.view.set_name('Finder')
     self.view.set_scratch(True)
+    self.view.set_read_only(True)
+    self.view.window().set_minimap_visible(False)
     self.view.settings().set("finder.is_open", True)
     self.view.settings().set("finder.inline", settings.get("files_inline"))
     self.view.settings().set("finder.x", 0)
     self.view.settings().set("finder.y", 0)
     self.view.settings().set("finder.selected_path", expanduser("~"))
     self.view.settings().set("finder.current_path", expanduser("~"))
-    self.view.settings().set("font_size", 16.0)
+    # self.view.settings().set("font_size", 16.0)
     self.view.settings().set("gutter", False)
     self.view.settings().set("finder.has_loaded", False)
     
-    # self.view.settings().set("font_face", "Anonymous Pro")
-    # self.view.settings().set("font_face", "icomoon")
-    # self.view.settings().set("color_scheme", "Packages/Finder/Finder.sublime-color-scheme")
-    # self.view.settings().set("syntax", "Packages/JavaScript/JSON.sublime-syntax")
-    # self.view.set_syntax_file("Packages/Finder/syntax/finder.sublime-syntax")
-    
     self.view.run_command("finder_update")
-    # self.view.set_read_only(True)
   
     window.focus_view(self.view)
     
@@ -83,6 +82,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     # IF SELECTION IS DIRECTORY
     if os.path.isdir(path) and self.view.size() < 2**20:
 
+      # files = [name for index, name in enumerate(os.listdir(path)) if not folder_is_hidden(name)]
       files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
       
       char_limit = 17
@@ -118,7 +118,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               margin: 0;
               padding: 0 """ + str( em_width ) + """;
               width: """ + str( width ) + """px;
-              font-size: """ + str( self.view.settings().get("font_size") ) + """px;
+              font-size: 16px;
             }
 
             a {
@@ -229,3 +229,10 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     self.view.settings().set("finder.y", int(get_y))
     
     self.view.run_command("finder_update")
+
+# def folder_is_hidden(p):
+#   if os.name== 'nt':
+#     attribute = win32api.GetFileAttributes(p)
+#     return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+#   else:
+#     return p.startswith('.') #linux-osx

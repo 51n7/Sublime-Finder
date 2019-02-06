@@ -27,7 +27,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("finder.y", 0)
     self.view.settings().set("finder.selected_path", expanduser("~"))
     self.view.settings().set("finder.current_path", expanduser("~"))
-    # self.view.settings().set("font_size", 16.0)
+    self.view.settings().set("font_size", 16.0)
     self.view.settings().set("gutter", False)
     self.view.settings().set("finder.has_loaded", False)
     
@@ -90,9 +90,9 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 
       em_width = self.view.em_width()
       width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
-      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * 2)
+      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * 3)
       
-      file_width = (em_width * (char_limit + 1)) + icon_width
+      file_width = (em_width * (char_limit + 3)) + icon_width
       col_count = int( width / file_width )
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
@@ -101,7 +101,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       icon_file = ""
 
       if inline == True:
-        icon_x = em_width
+        icon_x = 0
         icon_y = 10
         name_y = 0
         line_height = 35
@@ -117,7 +117,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             body {
               margin: 0;
               padding: 0 """ + str( em_width ) + """;
-              width: """ + str( width ) + """px;
               font-size: 16px;
             }
 
@@ -129,7 +128,11 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             .file {
               display: inline;
               margin: 0;
-              padding: 10px """ + str( pad / 2 ) + """;
+              padding: 0 """ + str( pad / 2 ) + """;
+            }
+
+            .file .wrapper {
+              padding: 10px """ + str( em_width ) + """;
               line-height: """ + str( line_height ) + """px;
             }
 
@@ -139,17 +142,16 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               position: relative;
               top: """ + str( icon_y ) + """px;
               font-size: """ + str( icon_width ) + """px;
+              padding-right: """ + str( em_width ) + """;
             }
             
             .file .name {
-              display: inline;
-              padding: 0;
               position: relative;
               left: """ + str( icon_x ) + """px;
               top: """ + str( name_y ) + """px;
             }
 
-            .file.active {
+            .file.active .wrapper {
               background-color: rgba(255, 255, 255, 0.15);
             }
 
@@ -194,12 +196,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         
         pos_x = self.get_xy(col_count, index)[0]
         pos_y = self.get_xy(col_count, index)[1]
-
+        
+        br = '<br />' if (index + 1) and ((index + 1) % col_count == 0) else ''
+        
         if y == pos_y and x == pos_x:
           is_active = " active"
           self.view.settings().set("finder.selected_path", os.path.join(path, file))
         
-        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="icon">'+ icon_folder +'</span><span class="name">'+ file.replace(" ", "&nbsp;") +'</span>'+ nbsp +' </a>'
+        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon_folder +'</span><span class="name">'+ file.replace(" ", "&nbsp;") +'</span>'+ nbsp +'</span></a>' + br
         
         html += tmp
 

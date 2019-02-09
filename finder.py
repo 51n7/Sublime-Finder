@@ -27,7 +27,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("finder.y", 0)
     self.view.settings().set("finder.selected_path", expanduser("~"))
     self.view.settings().set("finder.current_path", expanduser("~"))
-    self.view.settings().set("font_size", 16.0)
+    self.view.settings().set("font_size", settings.get("font_size"))
     self.view.settings().set("gutter", False)
     self.view.settings().set("finder.has_loaded", False)
     
@@ -87,12 +87,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       
       char_limit = 17
       icon_width = 40
+      em_space = 3
 
       em_width = self.view.em_width()
       width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
-      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * 3)
+      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * em_space)
       
-      file_width = (em_width * (char_limit + 3)) + icon_width
+      file_width = (em_width * (char_limit + em_space)) + icon_width
       col_count = int( width / file_width )
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
@@ -103,11 +104,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       if inline == True:
         icon_x = 0
         icon_y = 10
+        name_x = 0
         name_y = 0
         line_height = 35
       else:
-        icon_x = -(icon_width)
+        icon_x = (file_width / 2) - (icon_width / 2) - (em_width / 2)
         icon_y = -5
+        name_x = -(icon_width / 2)
         name_y = 20
         line_height = 70
 
@@ -117,7 +120,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             body {
               margin: 0;
               padding: 0 """ + str( em_width ) + """;
-              font-size: 16px;
             }
 
             a {
@@ -141,13 +143,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               display: inline;
               position: relative;
               top: """ + str( icon_y ) + """px;
+              left: """ + str( icon_x ) + """px;
               font-size: """ + str( icon_width ) + """px;
               padding-right: """ + str( em_width ) + """;
             }
             
             .file .name {
               position: relative;
-              left: """ + str( icon_x ) + """px;
+              left: """ + str( name_x ) + """px;
               top: """ + str( name_y ) + """px;
             }
 
@@ -166,6 +169,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
               width: """ + str( file_width ) + """px;
               padding: 0 """ + str( pad / 2 ) + """;
               height: 20px;
+              display: none;
             }
 
             .footer {
@@ -185,14 +189,9 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       for index, file in enumerate(files):
 
         is_active = ""
-        space = char_limit - len(file)
-        
-        if space >= 0:
-          # nbsp = "-" * space
-          nbsp = "&nbsp;" * space
-        else:
-          file = file[:(char_limit - 3)]+"..."
-          nbsp = ""
+        file = file[:(char_limit - 3)]+"..." if len(file) > char_limit else file
+        spacer = int(file_width - ( em_width * (len(file) + em_space) + icon_width ))
+        padding = "0 "+ str(spacer) +" 0 0" if inline == True else "0 "+ str(spacer / 2)
         
         pos_x = self.get_xy(col_count, index)[0]
         pos_y = self.get_xy(col_count, index)[1]
@@ -203,11 +202,11 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
           is_active = " active"
           self.view.settings().set("finder.selected_path", os.path.join(path, file))
         
-        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon_folder +'</span><span class="name">'+ file.replace(" ", "&nbsp;") +'</span>'+ nbsp +'</span></a>' + br
+        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon_folder +'</span><span class="name" style="padding: '+ padding +';">'+ file.replace(" ", "&nbsp;") +'</span></span></a>' + br
         
         html += tmp
 
-      html += '<div class="footer">'+path+'</div>'
+      html += '<div class="tester"></div><div class="footer">'+path+'</div>'
       html += '</body>'
       
       self.view.erase_phantoms("list")

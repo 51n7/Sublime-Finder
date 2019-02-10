@@ -1,7 +1,7 @@
 # Sublime-Finder
 
 <a href="#">
-  <img src="https://github.com/jonbestdev/Sublime-Finder/blob/master/screenshots/screenshot-1.gif" width="50%">
+  <img src="https://github.com/jonbestdev/Sublime-Finder/blob/master/screenshots/screenshot-1.gif" width="75%">
 </a>
 
 ## Installation

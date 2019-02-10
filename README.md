@@ -1,5 +1,9 @@
 # Sublime-Finder
 
+<a href="#">
+  <img src="https://github.com/jonbestdev/Sublime-Finder/blob/master/screenshots/screenshot-1.gif" width="50%">
+</a>
+
 ## Installation
 - Clone or download zip file.
 - Rename `Sublime-Finder` to `Finder` and copy to your Sublime packages folder.

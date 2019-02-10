@@ -86,7 +86,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
       
       char_limit = 17
-      icon_width = 40
+      icon_width = 40 if inline == True else 50
       em_space = 3
 
       em_width = self.view.em_width()
@@ -98,8 +98,8 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
       
-      icon_folder = ""
-      icon_file = ""
+      # icon_folder = ""
+      # icon_file = ""
 
       if inline == True:
         icon_x = 0
@@ -109,10 +109,10 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         line_height = 35
       else:
         icon_x = (file_width / 2) - (icon_width / 2) - (em_width / 2)
-        icon_y = -5
+        icon_y = 0
         name_x = -(icon_width / 2)
-        name_y = 20
-        line_height = 70
+        name_y = 25
+        line_height = 80
 
       html = """
         <body id="finder">
@@ -189,6 +189,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       for index, file in enumerate(files):
 
         is_active = ""
+        file_path = os.path.join(path, file)
         file = file[:(char_limit - 3)]+"..." if len(file) > char_limit else file
         spacer = int(file_width - ( em_width * (len(file) + em_space) + icon_width ))
         padding = "0 "+ str(spacer) +" 0 0" if inline == True else "0 "+ str(spacer / 2)
@@ -197,12 +198,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         pos_y = self.get_xy(col_count, index)[1]
         
         br = '<br />' if (index + 1) and ((index + 1) % col_count == 0) else ''
+
+        icon = "" if os.path.isdir(file_path) else ""
         
         if y == pos_y and x == pos_x:
           is_active = " active"
-          self.view.settings().set("finder.selected_path", os.path.join(path, file))
+          self.view.settings().set("finder.selected_path", file_path)
         
-        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon_folder +'</span><span class="name" style="padding: '+ padding +';">'+ file.replace(" ", "&nbsp;") +'</span></span></a>' + br
+        tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon +'</span><span class="name" style="padding: '+ padding +';">'+ file.replace(" ", "&nbsp;") +'</span></span></a>' + br
         
         html += tmp
 

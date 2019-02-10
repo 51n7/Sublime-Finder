@@ -1,9 +1,22 @@
 # Sublime-Finder
 
-### Shortcuts
+## Installation
+- Clone or download zip file.
+- Rename `Sublime-Finder` to `Finder` and copy to your Sublime packages folder.
+- Install packages [font](https://github.com/jonbestdev/Sublime-Finder/tree/master/fonts) (needed for icons).
+
+### Mac Shortcuts
 | Command                           | Shortcut           |
 | :-------------------------------- | :----------------- |
-| Open Finder   | <kbd>⌃ + ⌘ + l</kbd> or <kbd>ctrl + shift + l</kbd> |
-| Navigate Up   | <kbd>⌘+↑</kbd> or <kbd>ctrl+↑</kbd>   |
-| Navigate Down | <kbd>⌘+↓</kbd> or <kbd>ctrl+↓</kbd>   |
-| Open File | <kbd>⌘+↓</kbd> or <kbd>ctrl+↓</kbd>       |
+| Open Finder   | <kbd>⌃ + ⌘ + L</kbd>                   |
+| Navigate Up   | <kbd>⌘ + ↑</kbd>                       |
+| Navigate Down | <kbd>⌘ + ↓</kbd>                       |
+| Open File     | <kbd>⌘ + ↓</kbd>                       |
+
+### Windows Shortcuts
+| Command                           | Shortcut           |
+| :-------------------------------- | :----------------- |
+| Open Finder   | <kbd>ctrl + shift + L</kbd>            |
+| Navigate Up   | <kbd>backspace</kbd>                   |
+| Navigate Down | <kbd>enter</kbd>                       |
+| Open File     | <kbd>enter</kbd>                       |

@@ -3,7 +3,7 @@
     "keys": ["ctrl+shift+l"], "command": "finder"
   },
   {
-    "keys": ["ctrl+up"],
+    "keys": ["backspace"],
     "command": "finder_update",
     "args": {
       "source": "nav-up"
@@ -13,7 +13,7 @@
     ]
   },
   {
-    "keys": ["ctrl+down"],
+    "keys": ["enter"],
     "command": "finder_update",
     "args": {
       "source": "nav-down"

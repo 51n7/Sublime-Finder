@@ -16,7 +16,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
     
     window = sublime.active_window()
     self.view = window.new_file()
-
+    
     self.view.set_name('Finder')
     self.view.set_scratch(True)
     self.view.set_read_only(True)
@@ -30,12 +30,15 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("font_size", settings.get("font_size"))
     self.view.settings().set("gutter", False)
     self.view.settings().set("finder.has_loaded", False)
+    self.view.settings().set("is_widget", True)
     
     self.view.run_command("finder_update")
+    print( self.view.id() )
   
     window.focus_view(self.view)
     
     return self.view
+
 
 class FinderUpdateCommand(sublime_plugin.TextCommand):
 
@@ -98,9 +101,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
       
-      # icon_folder = ""
-      # icon_file = ""
-
       if inline == True:
         icon_x = 0
         icon_y = 10
@@ -242,3 +242,36 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 #     return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
 #   else:
 #     return p.startswith('.') #linux-osx
+
+
+# CONTEXT MENU - COPY PATH
+class finderCopyPathCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit, event):
+    sublime.set_clipboard(self.view.settings().get("finder.current_path"))
+    
+  def is_visible(self, event):
+    return self.view.settings().get("finder.is_open") is not None
+  
+  def want_event(self): return True
+
+
+# CONTEXT MENU - MOUNT PROJECT
+class finderMountProjectCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit, event):
+    path = self.view.settings().get("finder.current_path")
+
+    sublime.run_command("new_window")
+    window = sublime.active_window()
+
+    data = window.project_data()
+    data = {'folders': [{'follow_symlinks': True, 'path': path}] }
+
+    window.set_project_data(data)
+    
+  def is_visible(self, event):
+    return self.view.settings().get("finder.is_open") is not None
+  
+  def want_event(self): return True
+  

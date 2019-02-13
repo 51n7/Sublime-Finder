@@ -1,0 +1,5 @@
+[
+  { "caption": "-" },
+  { "caption": "Copy Full Path", "command": "finder_copy_path" },
+  { "caption": "Mount As Project", "command": "finder_mount_project" }
+]

@@ -5,21 +5,13 @@
   {
     "keys": ["backspace"],
     "command": "finder_update",
-    "args": {
-      "source": "nav-up"
-    },
-    "context": [
-      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
-    ]
+    "args": { "source": "nav-up" },
+    "context": [{ "key": "setting.finder.is_open", "operator": "equal", "operand": true }]
   },
   {
     "keys": ["enter"],
     "command": "finder_update",
-    "args": {
-      "source": "nav-down"
-    },
-    "context": [
-      { "key": "setting.finder.is_open", "operator": "equal", "operand": true }
-    ]
+    "args": { "source": "nav-down" },
+    "context": [{ "key": "setting.finder.is_open", "operator": "equal", "operand": true }]
   }
 ]

@@ -1,8 +1,10 @@
 import sublime
 import sublime_plugin
 import os, subprocess, sys
+
 from urllib import parse
 from os.path import expanduser
+from threading import Timer
 
 # todo:
 # import win32api, win32con
@@ -40,7 +42,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
 
 class FinderUpdateCommand(sublime_plugin.TextCommand):
 
-  def run(self, edit, source=None):
+  def run(self, edit, source = None, search = None):
     
     inline = self.view.settings().get("finder.inline")
     x = self.view.settings().get("finder.x")
@@ -52,6 +54,9 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
+    
+    if search:
+      print( source )
 
     # NAVIGATE DOWN
     if source == "nav-down":
@@ -246,7 +251,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 
 
 # CONTEXT MENU - COPY PATH
-class finderCopyPathCommand(sublime_plugin.TextCommand):
+class FinderCopyPathCommand(sublime_plugin.TextCommand):
 
   def run(self, edit, event):
     sublime.set_clipboard(self.view.settings().get("finder.current_path"))
@@ -258,7 +263,7 @@ class finderCopyPathCommand(sublime_plugin.TextCommand):
 
 
 # CONTEXT MENU - MOUNT PROJECT
-class finderMountProjectCommand(sublime_plugin.TextCommand):
+class FinderMountProjectCommand(sublime_plugin.TextCommand):
 
   def run(self, edit, event):
     path = self.view.settings().get("finder.current_path")
@@ -275,3 +280,23 @@ class finderMountProjectCommand(sublime_plugin.TextCommand):
     return self.view.settings().get("finder.is_open") is not None
   
   def want_event(self): return True
+
+
+class FinderSearchCommand(sublime_plugin.TextCommand):
+
+  fuzzy_term = ""
+  timer = None
+
+  def run(self, edit, character):
+    
+    if not self.timer == None: self.timer.cancel()
+    
+    self.timer = Timer(1.0, self.clear_term)
+    self.timer.start()
+    self.fuzzy_term += character
+
+    # SEARCH FILES
+    self.view.run_command("finder_update", { "source": self.fuzzy_term, "search": True })
+
+  def clear_term(self): self.fuzzy_term = ""
+

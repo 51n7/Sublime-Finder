@@ -33,18 +33,14 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("is_widget", True)
     
     self.view.run_command("finder_update")
-    print( self.view.id() )
-  
+    
     window.focus_view(self.view)
     
     return self.view
 
-
 class FinderUpdateCommand(sublime_plugin.TextCommand):
 
   def run(self, edit, source=None):
-    
-    image = "res://Packages/Finder/images/icon-folder.png"
     
     inline = self.view.settings().get("finder.inline")
     x = self.view.settings().get("finder.x")
@@ -60,7 +56,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     # NAVIGATE DOWN
     if source == "nav-down":
       path = expanduser(self.view.settings().get("finder.selected_path"))
-
+      
       if os.path.isfile(path):
         
         # OPEN FILE
@@ -81,12 +77,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     if source == "nav-up":
       x = y = 0
       path = expanduser(os.path.abspath(os.path.join(current_path, os.pardir)))
-    
+      
     # IF SELECTION IS DIRECTORY
     if os.path.isdir(path) and self.view.size() < 2**20:
 
       # files = [name for index, name in enumerate(os.listdir(path)) if not folder_is_hidden(name)]
-      files = [name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')]
+      files = sorted([name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')], reverse = False)
+      
+      if len(files) == 0: files = ['..']
       
       char_limit = 17
       icon_width = 40 if inline == True else 50
@@ -203,8 +201,10 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         
         if y == pos_y and x == pos_x:
           is_active = " active"
-          self.view.settings().set("finder.selected_path", file_path)
-        
+          
+          if not file == "..":
+            self.view.settings().set("finder.selected_path", file_path)
+
         tmp = '<a href="?x='+ str( pos_x ) +'&y='+ str( pos_y ) +'" class="file'+ is_active +'"><span class="wrapper"><span class="icon">'+ icon +'</span><span class="name" style="padding: '+ padding +';">'+ file.replace(" ", "&nbsp;") +'</span></span></a>' + br
         
         html += tmp
@@ -236,12 +236,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     
     self.view.run_command("finder_update")
 
-# def folder_is_hidden(p):
-#   if os.name== 'nt':
-#     attribute = win32api.GetFileAttributes(p)
-#     return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
-#   else:
-#     return p.startswith('.') #linux-osx
+  
+  # def folder_is_hidden(p):
+  #   if os.name== 'nt':
+  #     attribute = win32api.GetFileAttributes(p)
+  #     return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+  #   else:
+  #     return p.startswith('.') #linux-osx
 
 
 # CONTEXT MENU - COPY PATH
@@ -274,4 +275,3 @@ class finderMountProjectCommand(sublime_plugin.TextCommand):
     return self.view.settings().get("finder.is_open") is not None
   
   def want_event(self): return True
-  

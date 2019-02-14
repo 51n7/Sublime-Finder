@@ -139,7 +139,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             }
 
             .file .icon {
-              font-family: "devicons";
+              font-family: "Sublime-Finder";
               display: inline;
               position: relative;
               top: """ + str( icon_y ) + """px;

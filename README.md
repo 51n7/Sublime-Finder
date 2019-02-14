@@ -8,6 +8,7 @@
 - Clone or download zip file.
 - Rename `Sublime-Finder` to `Finder` and copy to your Sublime packages folder.
 - Install packages [font](https://github.com/jonbestdev/Sublime-Finder/tree/master/fonts) (needed for icons).
+- Restart Sublime.
 
 ### Mac Shortcuts
 | Command                           | Shortcut           |

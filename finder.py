@@ -31,6 +31,7 @@ class FinderCommand( sublime_plugin.TextCommand ):
     self.view.settings().set("finder.current_path", expanduser("~"))
     self.view.settings().set("font_size", settings.get("font_size"))
     self.view.settings().set("gutter", False)
+    self.view.settings().set("scroll_past_end", False)
     self.view.settings().set("finder.has_loaded", False)
     self.view.settings().set("is_widget", True)
     
@@ -54,6 +55,12 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
+
+    # self.view.set_viewport_position((0, 50), True)
+    # print ( self.view.viewport_position() )
+    # height = self.view.viewport_extent()[1]
+    # layout_height = self.view.layout_extent()[1]
+    # print( layout_height )
     
     # NAVIGATE DOWN
     if source == "nav-down":
@@ -99,11 +106,14 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       em_width = self.view.em_width()
       width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
       width = (self.view.viewport_extent()[0] + width_bug) - (em_width * em_space)
+      height = self.view.viewport_extent()[1]
+      layout_height = self.view.layout_extent()[1]
       
       file_width = (em_width * (char_limit + em_space)) + icon_width
       col_count = int( width / file_width )
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
+      scroll_pos = ((100 * ( y + 1 ) / row_count) / 100) * (layout_height - height)
       
       if inline == True:
         icon_x = 0
@@ -165,19 +175,10 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
             .file.active .name {
               text-decoration: underline;
             }
-
-            .tester {
-              background-color: #b1dc1c;
-              display: block;
-              margin-top: 40px;
-              width: """ + str( file_width ) + """px;
-              padding: 0 """ + str( pad / 2 ) + """;
-              height: 20px;
-              display: none;
-            }
-
+            
             .footer {
               margin-top: 40px;
+              margin-bottom: 40px;
             }
           </style>
       """
@@ -219,7 +220,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         
         html += tmp
 
-      html += '<div class="tester"></div><div class="footer">'+path+'</div>'
+      html += '<div class="footer">'+path+'</div>'
       html += '</body>'
       
       self.view.erase_phantoms("list")
@@ -229,6 +230,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     self.view.settings().set("finder.y", y)
     self.view.settings().set("finder.current_path", path)
     self.view.settings().set("finder.has_loaded", True)
+    self.view.set_viewport_position((0, scroll_pos), False)
   
   def get_xy(self, col_count, index):
     return (index % col_count, int( index / col_count ))

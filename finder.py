@@ -55,12 +55,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
-
-    # self.view.set_viewport_position((0, 50), True)
-    # print ( self.view.viewport_position() )
-    # height = self.view.viewport_extent()[1]
-    # layout_height = self.view.layout_extent()[1]
-    # print( layout_height )
     
     # NAVIGATE DOWN
     if source == "nav-down":

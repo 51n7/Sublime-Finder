@@ -55,9 +55,6 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     if source == "left": x -= 1
     if source == "right": x += 1
     
-    if search:
-      print( source )
-
     # NAVIGATE DOWN
     if source == "nav-down":
       path = expanduser(self.view.settings().get("finder.selected_path"))
@@ -86,9 +83,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     # IF SELECTION IS DIRECTORY
     if os.path.isdir(path) and self.view.size() < 2**20:
 
-      # files = [name for index, name in enumerate(os.listdir(path)) if not folder_is_hidden(name)]
       files = sorted([name for index, name in enumerate(os.listdir(path)) if not name.startswith('.')], reverse = False)
+      # files = [name for index, name in enumerate(os.listdir(path)) if not folder_is_hidden(name)]
       
+      if search:
+        fuzzy_index = [index for index, name in enumerate(files) if name.lower().startswith(source.lower())]
+        fuzzy_index = fuzzy_index[0] if len(fuzzy_index) > 0 else None
+        
       if len(files) == 0: files = ['..']
       
       char_limit = 17
@@ -108,7 +109,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         icon_x = 0
         icon_y = 10
         name_x = 0
-        name_y = 0
+        name_y = 1
         line_height = 35
       else:
         icon_x = (file_width / 2) - (icon_width / 2) - (em_width / 2)
@@ -181,9 +182,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
           </style>
       """
 
-      # LOOP NAVIGATION
-      x = x % col_count
-      y = y % row_count
+      # NAVIGATION
+      if search and not fuzzy_index == None:
+        x = self.get_xy(col_count, fuzzy_index)[0]
+        y = self.get_xy(col_count, fuzzy_index)[1]
+      else:
+        x = x % col_count
+        y = y % row_count
 
       if ((y * col_count) + x > (len(files) - 1)):
         x = ((len(files) - 1) % col_count)
@@ -203,8 +208,8 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
         br = '<br />' if (index + 1) and ((index + 1) % col_count == 0) else ''
 
         icon = "" if os.path.isdir(file_path) else ""
-        
-        if y == pos_y and x == pos_x:
+
+        if x == pos_x and y == pos_y:
           is_active = " active"
           
           if not file == "..":

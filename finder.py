@@ -50,12 +50,13 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     y = self.view.settings().get("finder.y")
     current_path = self.view.settings().get("finder.current_path")
     has_loaded = self.view.settings().get("finder.has_loaded")
+    view_pos = self.view.viewport_position()
 
     if source == "up": y -= 1
     if source == "down": y += 1
     if source == "left": x -= 1
     if source == "right": x += 1
-    
+
     # NAVIGATE DOWN
     if source == "nav-down":
       path = expanduser(self.view.settings().get("finder.selected_path"))
@@ -107,7 +108,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       col_count = int( width / file_width )
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
-      scroll_pos = ((100 * ( y + 1 ) / row_count) / 100) * (layout_height - height)
+      # scroll_pos = ((100 * ( y + 1 ) / row_count) / 100) * (layout_height - height)
       
       if inline == True:
         icon_x = 0
@@ -224,7 +225,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     self.view.settings().set("finder.y", y)
     self.view.settings().set("finder.current_path", path)
     self.view.settings().set("finder.has_loaded", True)
-    self.view.set_viewport_position((0, scroll_pos), False)
+    self.view.set_viewport_position(view_pos, False)
   
   def get_xy(self, col_count, index):
     return (index % col_count, int( index / col_count ))
@@ -283,6 +284,7 @@ class FinderMountProjectCommand(sublime_plugin.TextCommand):
   def want_event(self): return True
 
 
+# TYPE TO SEARCH FILES
 class FinderSearchCommand(sublime_plugin.TextCommand):
 
   fuzzy_term = ""

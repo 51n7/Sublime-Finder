@@ -25,3 +25,14 @@
 | Navigate Up   | <kbd>backspace</kbd>                   |
 | Navigate Down | <kbd>enter</kbd>                       |
 | Open File     | <kbd>enter</kbd>                       |
+
+### TODO:
+- [ ] list sorting
+- [ ] toggle hidden files
+- [x] ~~type to search~~
+- [x] ~~mount as project~~
+- [x] ~~slim down font file~~
+
+### BUGS:
+- [ ] menlo font "fl" bug
+- [ ] new_file breaking text cursor in current file

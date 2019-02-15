@@ -108,7 +108,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       col_count = int( width / file_width )
       row_count = self.ceil( len(files) / col_count )
       pad = (width - (file_width * col_count)) / col_count
-      # scroll_pos = ((100 * ( y + 1 ) / row_count) / 100) * (layout_height - height)
+      scroll_pos = ((100 * ( y + 1 ) / row_count) / 100) * (layout_height - height)
       
       if inline == True:
         icon_x = 0
@@ -226,6 +226,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
     self.view.settings().set("finder.current_path", path)
     self.view.settings().set("finder.has_loaded", True)
     self.view.set_viewport_position(view_pos, False)
+    self.view.set_viewport_position((0, scroll_pos), True)
   
   def get_xy(self, col_count, index):
     return (index % col_count, int( index / col_count ))

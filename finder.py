@@ -17,29 +17,29 @@ class FinderCommand( sublime_plugin.TextCommand ):
     settings = sublime.load_settings("Finder.sublime-settings")
     
     window = sublime.active_window()
-    self.view = window.new_file()
+    view = window.new_file()
     
-    self.view.set_name('Finder')
-    self.view.set_scratch(True)
-    self.view.set_read_only(True)
-    self.view.window().set_minimap_visible(False)
-    self.view.settings().set("finder.is_open", True)
-    self.view.settings().set("finder.inline", settings.get("files_inline"))
-    self.view.settings().set("finder.x", 0)
-    self.view.settings().set("finder.y", 0)
-    self.view.settings().set("finder.selected_path", expanduser("~"))
-    self.view.settings().set("finder.current_path", expanduser("~"))
-    self.view.settings().set("font_size", settings.get("font_size"))
-    self.view.settings().set("gutter", False)
-    self.view.settings().set("scroll_past_end", False)
-    self.view.settings().set("finder.has_loaded", False)
-    self.view.settings().set("is_widget", True)
+    view.set_name('Finder')
+    view.set_scratch(True)
+    view.set_read_only(True)
+    view.window().set_minimap_visible(False)
+    view.settings().set("finder.is_open", True)
+    view.settings().set("finder.inline", settings.get("files_inline"))
+    view.settings().set("finder.x", 0)
+    view.settings().set("finder.y", 0)
+    view.settings().set("finder.selected_path", expanduser("~"))
+    view.settings().set("finder.current_path", expanduser("~"))
+    view.settings().set("font_size", settings.get("font_size"))
+    view.settings().set("gutter", False)
+    view.settings().set("scroll_past_end", False)
+    view.settings().set("finder.has_loaded", False)
+    view.settings().set("is_widget", True)
     
-    self.view.run_command("finder_update")
+    view.run_command("finder_update")
     
-    window.focus_view(self.view)
+    window.focus_view(view)
     
-    return self.view
+    return view
 
 class FinderUpdateCommand(sublime_plugin.TextCommand):
 

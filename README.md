@@ -35,4 +35,4 @@
 
 ### BUGS:
 - [ ] menlo font "fl" bug
-- [ ] new_file breaking text cursor in current file
+- [ ] ~~new_file breaking text cursor in current file~~

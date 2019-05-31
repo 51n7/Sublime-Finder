@@ -99,8 +99,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
       em_space = 3
 
       em_width = self.view.em_width()
-      width_bug = 0 if has_loaded else 46 # my guess is the gutter causing issues
-      width = (self.view.viewport_extent()[0] + width_bug) - (em_width * em_space)
+      width = self.view.viewport_extent()[0] - (em_width * em_space)
       height = self.view.viewport_extent()[1]
       layout_height = self.view.layout_extent()[1]
       

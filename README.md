@@ -11,21 +11,21 @@
 - Restart Sublime.
 
 ### Mac Shortcuts
-| Command                           | Shortcut           |
-| :-------------------------------- | :----------------- |
-| Open Finder   | <kbd>⌃ + ⌘ + L</kbd>                   |
-| Navigate Up   | <kbd>⌘ + ↑</kbd>                       |
-| Navigate Down | <kbd>⌘ + ↓</kbd>                       |
-| Open File     | <kbd>⌘ + ↓</kbd>                       |
-| Mount Project | <kbd>⌘ + enter</kbd>                   |
+| Command                           | Shortcut          |
+| :------------------------ | :------------------------ |
+| Open Finder   | <kbd>⌃ + ⌘ + L</kbd>                  |
+| Navigate Up   | <kbd>⌘ + ↑</kbd>                      |
+| Navigate Down | <kbd>⌘ + ↓</kbd>                      |
+| Open File     | <kbd>⌘ + ↓</kbd>                      |
+| Mount Project | <kbd>⌘ + enter</kbd>                  |
 
 ### Windows Shortcuts
-| Command                           | Shortcut           |
-| :-------------------------------- | :----------------- |
-| Open Finder   | <kbd>ctrl + shift + L</kbd>            |
-| Navigate Up   | <kbd>backspace</kbd>                   |
-| Navigate Down | <kbd>enter</kbd>                       |
-| Open File     | <kbd>enter</kbd>                       |
+| Command                           | Shortcut          |
+| :------------------------ | :------------------------ |
+| Open Finder   | <kbd>ctrl + shift + L</kbd>           |
+| Navigate Up   | <kbd>backspace</kbd>                  |
+| Navigate Down | <kbd>enter</kbd>                      |
+| Open File     | <kbd>enter</kbd>                      |
 
 ### TODO:
 - [ ] list sorting

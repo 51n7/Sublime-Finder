@@ -13,5 +13,15 @@
     "command": "finder_update",
     "args": { "source": "nav-down" },
     "context": [{ "key": "setting.finder.is_open", "operator": "equal", "operand": true }]
+  },
+  {
+    "keys": ["super+enter"],
+    "command": "finder_mount_project",
+    "context": [{ "key": "setting.finder.is_open", "operator": "equal", "operand": true }]
+  },
+  {
+    "keys": ["super+c"],
+    "command": "finder_copy_path",
+    "context": [{ "key": "setting.finder.is_open", "operator": "equal", "operand": true }]
   }
 ]

@@ -17,6 +17,7 @@
 | Navigate Up   | <kbd>⌘ + ↑</kbd>                       |
 | Navigate Down | <kbd>⌘ + ↓</kbd>                       |
 | Open File     | <kbd>⌘ + ↓</kbd>                       |
+| Mount Project | <kbd>⌘ + enter</kbd>                   |
 
 ### Windows Shortcuts
 | Command                           | Shortcut           |

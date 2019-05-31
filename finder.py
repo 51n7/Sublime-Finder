@@ -256,7 +256,7 @@ class FinderUpdateCommand(sublime_plugin.TextCommand):
 # CONTEXT MENU - COPY PATH
 class FinderCopyPathCommand(sublime_plugin.TextCommand):
 
-  def run(self, edit, event):
+  def run(self, edit):
     sublime.set_clipboard(self.view.settings().get("finder.current_path"))
     
   def is_visible(self, event):
@@ -268,8 +268,8 @@ class FinderCopyPathCommand(sublime_plugin.TextCommand):
 # CONTEXT MENU - MOUNT PROJECT
 class FinderMountProjectCommand(sublime_plugin.TextCommand):
 
-  def run(self, edit, event):
-    path = self.view.settings().get("finder.current_path")
+  def run(self, edit):
+    path = self.view.settings().get("finder.selected_path")
 
     sublime.run_command("new_window")
     window = sublime.active_window()
@@ -278,11 +278,6 @@ class FinderMountProjectCommand(sublime_plugin.TextCommand):
     data = {'folders': [{'follow_symlinks': True, 'path': path}] }
 
     window.set_project_data(data)
-    
-  def is_visible(self, event):
-    return self.view.settings().get("finder.is_open") is not None
-  
-  def want_event(self): return True
 
 
 # TYPE TO SEARCH FILES
